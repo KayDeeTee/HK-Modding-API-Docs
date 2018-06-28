@@ -269,19 +269,25 @@ DashPressedHook
 ^^^^^^^^^^^^^^^
 :code:`ModHooks.Instance.DashPressedHook += DashPressed`
 
-:code:`public bool DashPressed()`
+:code:`public void DashPressed()`
  
-Called whenever dash is pressed, return overrides vanilla inputs: true to not dash, false to dash.
+Called whenever dash is pressed, always overrides vanilla inputs.
 
 .. code-block:: c#
     
     //This snippet makes it only possible to dash if you are also rising in your jump.
-    public bool DashPressed(){
-        return !HeroController.instance.cState.jumping;
+    public void DashPressed(){
+        if (HeroController.instance.cState.jumping)
+        {
+            HeroController.instance.cState.dashing = true;
+            HeroController.instance.GetType().GetField("dashQueueSteps", BindingFlags.NonPublic | 
+                                    BindingFlags.Instance)).SetValue(HeroController.instance, 0);
+        }
     }
 
 .. note::
-   It might seem weird to NOT dash if you return true, but the intended functionality is for modded implementations of the entire dash, in which case you'd want to disable vanilla code entirely, and becaue of this you return true if you have a modded implementation.
+   It might seem weird that this hook overrides dash, but the intended functionality is for modded implementations of the entire dash, in 
+which case you'd want to disable vanilla code entirely. This is accomplished just by adding this hook.
 
 SavegameLoadHook
 ^^^^^^^^^^^^^^^^
